@@ -8,13 +8,11 @@
         "src_0",  // use default settings
         {
             "name": "src_1",
-            "args": [],
             "kwargs": {},
             "id": "some user-defined id"  // by default, this is the src name
         },
         {
             "name": "src_2",
-            "args": [],
             "kwargs": {},
             "id": "custom_src_id"
         }
@@ -23,14 +21,12 @@
     "pre": [
         {
             "name": "pre_0",
-            "args": [],
             "kwargs": {},
             "id": "some user-defined id"
         },
         "pre_1",
         {
             "name": "pre_0",
-            "args": [],
             "kwargs": {},
             "id": "pre_2",
             "comment": "tasks can be repeated"
@@ -49,16 +45,7 @@
         // src_0 result is omitted and src_2 is given precedence
         "key_1": [
             "custom_src_id",
-            "src_1",
-            // sources can take equal precedence. If the key already exists,
-            // then, by default, do not overwrite the value
-            ["eql_src_1", "eql_src_2"],
-            // the behavior of equal precedence handling can be changed
-            {
-                "sources": ["eql_src_1", "eql_src_2"],
-                // skip or overwrite
-                "equal": "skip"
-            }
+            "src_1"
         ]
     },
     // some keys are referred to as different names from different sources
