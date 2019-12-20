@@ -32,6 +32,7 @@
 		"ms-azuretools.vscode-docker",
 		"eamodio.gitlens",
 		"lextudio.restructuredtext",
-		"gruntfuggly.todo-tree"
+		"gruntfuggly.todo-tree",
+		"stkb.rewrap"
 	]
 }

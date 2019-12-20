@@ -1,2 +1,5 @@
 black
 mypy
+sphinx
+doc8
+sphinx_rtd_theme
