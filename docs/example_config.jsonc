@@ -18,7 +18,7 @@
         }
     ],
     // pre-processing execution order
-    "pre": [
+    "pres": [
         {
             "name": "pre_0",
             "kwargs": {},
@@ -38,7 +38,7 @@
     ],
     // post-proccessing execution order
     // this follows the same rules as pre
-    "post": [],
+    "posts": [],
     // remap source priority by id
     // any unmapped sources are placed at the bottom of the source ranking
     "key_sources": {
@@ -50,7 +50,7 @@
     },
     // some keys are referred to as different names from different sources
     // aliases groups the names together and remaps them to a primary key
-    "alias": {
+    "aliases": {
         // Keys with the name "key_0" or "key_1" are remapped to "primary_key"
         // If a source has both "key_0" and "key_1", the value of the lower
         // indexed key takes precedence (key_0)
