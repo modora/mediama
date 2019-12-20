@@ -1,0 +1,74 @@
+{
+    "name": "profile name",
+    
+    // source list from highest to lowest priority
+    // higher priority sources means metadata from that source takes priority
+    // over lower priority sources 
+    "sources": [ 
+        "src_0",  // use default settings
+        {
+            "name": "src_1",
+            "args": [],
+            "kwargs": {},
+            "id": "some user-defined id"  // by default, this is the src name
+        },
+        {
+            "name": "src_2",
+            "args": [],
+            "kwargs": {},
+            "id": "custom_src_id"
+        }
+    ],
+    // pre-processing execution order
+    "pre": [
+        {
+            "name": "pre_0",
+            "args": [],
+            "kwargs": {},
+            "id": "some user-defined id"
+        },
+        "pre_1",
+        {
+            "name": "pre_0",
+            "args": [],
+            "kwargs": {},
+            "id": "pre_2",
+            "comment": "tasks can be repeated"
+        },
+        {
+            "name": "pre_3",
+            "some_unknown_key": "unknown keys are ignored by the engine"
+        }
+    ],
+    // post-proccessing execution order
+    // this follows the same rules as pre
+    "post": [],
+    // remap source priority by id
+    // any unmapped sources are placed at the bottom of the source ranking
+    "key_sources": {
+        // src_0 result is omitted and src_2 is given precedence
+        "key_1": [
+            "custom_src_id",
+            "src_1",
+            // sources can take equal precedence. If the key already exists,
+            // then, by default, do not overwrite the value
+            ["eql_src_1", "eql_src_2"],
+            // the behavior of equal precedence handling can be changed
+            {
+                "sources": ["eql_src_1", "eql_src_2"],
+                // skip or overwrite
+                "equal": "skip"
+            }
+        ]
+    },
+    // some keys are referred to as different names from different sources
+    // aliases groups the names together and remaps them to a primary key
+    "alias": {
+        // Keys with the name "key_0" or "key_1" are remapped to "primary_key"
+        // If a source has both "key_0" and "key_1", the value of the lower
+        // indexed key takes precedence (key_0)
+        "primary_name": ["key_0", "key_1"]
+    },
+    // limit the number of results before and after metadata aggregation
+    "limit": 5
+}
