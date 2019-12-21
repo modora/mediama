@@ -1,11 +1,13 @@
-from typing import Set, List, Dict, Any, Type, TypedDict
+from typing import Set, List, Dict, Any, Type, TypedDict, Optional
 import copy
+from logging import getLogger
 
 from .metadata import VariablePool
 from .config import NormalizedTaskSettings
 
 Rankings = List[Dict[str, Any]]
 
+logger = getLogger(__name__)
 
 class Task:
     name: str
@@ -36,14 +38,26 @@ class Source(Task):
 
 
 class BaseTaskManager:
+    _tasks: Optional[Dict[str, Type[Task]]] = None
     def __init__(self, metadata: VariablePool):
         self.metadata = metadata
 
-    def discover_tasks(self) -> List[Type[Task]]:
+    def discover_tasks(self) -> Dict[str, Type[Task]]:
         """
         Find all tasks and import their object classes but do not init them yet
         """
-        raise NotImplementedError
+        if self._tasks is not None:
+            return self._tasks
+
+        try:
+            # TODO: Discover tasks
+            pass
+        except Exception as e:
+            logger.critical("Failed to discover processes")
+            raise e
+        self._tasks = {}
+
+        return self._tasks
 
     def load_task(self, task: Type[Task]) -> Task:
         metadata = copy.deepcopy(self.metadata)
@@ -57,7 +71,7 @@ class BaseProcessManager(BaseTaskManager):
     The following methods are identical, but we just need to change the return type
     """
 
-    def discover_tasks(self) -> List[Type[Process]]:  # type: ignore[override]
+    def discover_tasks(self) -> Dict[str, Type[Process]]:  # type: ignore[override]
         """
         The methods are identical, but we just need to change the return type
         """
@@ -71,39 +85,25 @@ class BaseProcessManager(BaseTaskManager):
         Discover all processes, then load and execute the ones found in the task
         list
         """
-        try:
-            processes = self.discover_tasks()
-        except Exception as e:
-            # TODO: Log critical
-            raise e
-        process_names: Set[str] = set()
-        for process in processes:
-            try:
-                if process.name is None:
-                    raise AttributeError(f"Process name missing: ${process}")
-                process_names.add(process.name)
-            except AttributeError as e:
-                # TODO: log error
-                pass
+        tasks = self.discover_tasks()
 
         for task in task_list:
             # mypy typeddict bug
-            if task.name not in process_names:  # type: ignore[attr-defined]
-                # TODO: log warning
+            task_name = task.name  # type: ignore[attr-defined]
+            if task_name not in tasks:  
+                logger.warning(f"{task_name} not found")
                 continue
 
             try:
-                process_instance = self.load_task(process)
+                process_instance = self.load_task(tasks[task_name])
             except Exception as e:
-                # TODO: log error
-                pass
+                logger.error(f"Failed to load {task_name}. Reason: {e}")
 
             try:
                 # mypy typeddict bug
                 process_instance.main(**task.kwargs)  # type: ignore[attr-defined]
             except Exception as e:
-                # TODO: log error
-                pass
+                logger.error(f"Failed to execute {task_name}. Reason: {e}")
 
 
 class PreProcessManager(BaseProcessManager):
