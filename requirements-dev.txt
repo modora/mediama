@@ -3,5 +3,5 @@ mypy
 sphinx
 doc8
 sphinx_rtd_theme
-pyfakefs
+# pyfakefs  This pkg breaks vscode debugger, DO NOT USE
 rope
