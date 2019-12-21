@@ -1,12 +1,12 @@
 import sqlite3
 from typing import List, Tuple, Any
-from collections import defaultdict
 
 class VariablePool:
-    def __init__(self, database: sqlite3.Connection, cfg: dict = None, id_: str = None):
+    def __init__(self, cfg: dict, id_: str = None):
         self.cfg = cfg
         self.id = id_
-        self.conn = database
+        
+        self.conn = sqlite3.connect(":memory:")
 
         c = self.conn.cursor()
         c.execute(
