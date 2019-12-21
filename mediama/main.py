@@ -14,6 +14,6 @@ def main(filelist: list, cfg: NormalizedConfig):
 
 def init():
     """
-    Setup root logger, setup varpool
+    Setup root logger, setup varpool, discover plugins
     """
     raise NotImplementedError
