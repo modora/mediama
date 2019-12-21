@@ -4,3 +4,4 @@ sphinx
 doc8
 sphinx_rtd_theme
 pyfakefs
+rope
