@@ -5,5 +5,9 @@
     "posts": [],
     "key_sources": {},
     "aliases": {},
-    "limit": 5
+    "limit": 5,
+    "log": {
+        "level": "warning",
+        "file": "mediama.log"
+    }
 }
