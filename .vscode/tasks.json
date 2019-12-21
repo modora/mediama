@@ -11,6 +11,17 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "make docs",
+            "type": "shell",
+            "command": "make html",
+            "options": {
+                "cwd": "${workspaceFolder}/docs"
+            },
+            "windows": {
+                "command": "./make.bat html"
+            }
         }
     ]
 }
