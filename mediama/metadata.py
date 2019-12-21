@@ -77,3 +77,6 @@ class VariablePool:
         if result:
             return result[0]  # unpack tuple
         raise KeyError(f"({id_}, {key}) not found in database")
+
+    def set_id(self, id_: str):
+        self.id = id_
