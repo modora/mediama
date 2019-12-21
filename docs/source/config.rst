@@ -169,7 +169,7 @@ Consider a source that returns the keys **title** and **title_jp**.
 .. code-block:: json
 
    {
-        aliases: {
+        "aliases": {
             "title": ["title_jp"]
         }
    }
