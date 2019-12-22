@@ -27,8 +27,9 @@ def discover_modules(search_dir: Path) -> Generator[Path, None, None]:
         f
         for f in search_dir.iterdir()
         if (f.is_file() and f.suffix == ".py")
-        or (f.is_dir() and "__init__.py" in tuple(f.iterdir()))
+        or (f.is_dir() and "__init__.py" in f.iterdir())
     )
+
 
 def import_module_from_path(module: Path) -> ModuleType:
     # attempt to import the file/package and raise error if fails
@@ -39,6 +40,7 @@ def import_module_from_path(module: Path) -> ModuleType:
         raise e
     finally:
         sys.path.pop(0)  # lets not pollute sys.path!!
+
 
 def unload_module(module: Union[str, ModuleType]):
     """
@@ -56,8 +58,11 @@ def unload_module(module: Union[str, ModuleType]):
         # module was never loaded so dont do anything
         pass
 
+
 # The "Any" of Generator[Any, None, None] should be the type of cls
-def get_subclasses_from_module(module: ModuleType, cls: Any) -> Generator[Any, None, None]:
+def get_subclasses_from_module(
+    module: ModuleType, cls: Any
+) -> Generator[Any, None, None]:
     """
     Find all subclasses from the specified module name
     """
