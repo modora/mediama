@@ -1,7 +1,15 @@
 from typing import Set, List, Dict, Any, Type, TypedDict, Optional
 import copy
 from logging import getLogger
+from pathlib import Path
 
+from .utils import (
+    import_module_from_path,
+    unload_module,
+    get_subclasses_from_module,
+    discover_modules,
+    dirs,
+)
 from .metadata import VariablePool
 from .config import NormalizedTaskSettings
 
@@ -9,11 +17,10 @@ Rankings = List[Dict[str, Any]]
 
 logger = getLogger(__name__)
 
-class Task:
-    name: str
 
+class Task:
     def __init__(self, metadata: VariablePool):
-        self.metadata = metadata.set_id(self.name)
+        self.metadata = metadata.set_id(self.__class__.__name__)
 
 
 class Process(Task):
@@ -39,24 +46,80 @@ class Source(Task):
 
 class BaseTaskManager:
     _tasks: Optional[Dict[str, Type[Task]]] = None
-    def __init__(self, metadata: VariablePool):
-        self.metadata = metadata
 
-    def discover_tasks(self) -> Dict[str, Type[Task]]:
+    def __init__(
+        self,
+        metadata: Optional[VariablePool] = None,
+        search_dirs: Optional[List[Path]] = None,
+    ):
+        self._metadata = metadata
+
+        # plugin search directory from lowest priority to highest
+        # if no search dirlist is provided use the default
+        self.search_dirs = (
+            search_dirs
+            if search_dirs
+            else [
+                Path(d) / "plugins" for d in (dirs.site_data_dir, dirs.user_data_dir)  # type: ignore[has-type]
+            ]
+        )
+
+    @property
+    def metadata(self):
+        if self._metadata is None:
+            raise RuntimeError("VariablePool not defined")
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, value):
+        self._metadata = value
+
+    def discover_tasks(self):
         """
-        Find all tasks and import their object classes but do not init them yet
+        Dev expected to override
+        """
+        raise NotImplementedError
+
+    def _discover_tasks(self, t_obj: Task) -> Dict[str, Type[Task]]:
+        """
+        Find all tasks subclassed by t_obj and import their object classes but
+        do not init them yet
         """
         if self._tasks is not None:
             return self._tasks
 
-        try:
-            # TODO: Discover tasks
-            pass
-        except Exception as e:
-            logger.critical("Failed to discover processes")
-            raise e
-        self._tasks = {}
+        search_dirs = filter(lambda path: path.exists(), self.search_dirs)
 
+        # Find all python modules
+        try:
+
+            def files_gen():
+                for dir_ in search_dirs:
+                    yield from discover_modules(dir_)
+
+        except Exception as e:
+            logger.critical("Failed to discover modules")
+            raise e
+        # We found modules, so load them and scan for any tasks within them
+        self._tasks = {}
+        for file in files_gen():
+            # attempt to import the file/package
+            # if import fails, skip
+            try:
+                module = import_module_from_path(file)
+            except Exception as e:
+                logger.debug(f"Failed to import {file} because {e}")
+                continue
+
+            # find all tasks within the module
+            try:
+                gen = get_subclasses_from_module(module, t_obj)
+            except Exception as e:
+                logger.warning(f"Failed to find subclasses in {module.__name__}")
+                unload_module(module)
+
+            # Add tasks to the cache
+            self._tasks.update({task.__name__: task for task in gen})
         return self._tasks
 
     def load_task(self, task: Type[Task]) -> Task:
@@ -66,23 +129,12 @@ class BaseTaskManager:
 
 
 class BaseProcessManager(BaseTaskManager):
-
-    """
-    The following methods are identical, but we just need to change the return type
-    """
-
-    def discover_tasks(self) -> Dict[str, Type[Process]]:  # type: ignore[override]
-        """
-        The methods are identical, but we just need to change the return type
-        """
-        return super().discover_tasks()  # type: ignore[return-value]
-
     def load_task(self, task: Type[Process]) -> Process:  # type: ignore[override]
         return super().load_task(task)  # type: ignore[return-value]
 
     def main(self, task_list: List[NormalizedTaskSettings]):
         """
-        Discover all processes, then load and execute the ones found in the task
+        Load and execute the ones found in the task
         list
         """
         tasks = self.discover_tasks()
@@ -90,7 +142,7 @@ class BaseProcessManager(BaseTaskManager):
         for task in task_list:
             # mypy typeddict bug
             task_name = task.name  # type: ignore[attr-defined]
-            if task_name not in tasks:  
+            if task_name not in tasks:
                 logger.warning(f"{task_name} not found")
                 continue
 

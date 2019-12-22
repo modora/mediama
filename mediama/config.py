@@ -81,7 +81,6 @@ def filter_duplicate_ids(tasks: List[NormalizedTaskSettings]):
             del tasks[i]
         else:
             ids.add(task["id"])
-    return tasks
 
 
 def load_config(path: Path) -> dict:
