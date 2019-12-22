@@ -26,7 +26,7 @@ def execute_process(mgr, task, name: str = "main"):
     try:
         logger.debug(f"Executing {task.id} with {task.kwargs}")
         func = getattr(t, name)
-        return func(task.kwargs)
+        return func(**task.kwargs)
     except Exception as e:
         logger.error(f"Error while executing {task.id}: {e}")
         raise e
