@@ -127,49 +127,16 @@ class BaseTaskManager:
         metadata.set_id(task.name)
         return task(metadata)
 
-
-class BaseProcessManager(BaseTaskManager):
-    def load_task(self, task: Type[Process]) -> Process:  # type: ignore[override]
-        return super().load_task(task)  # type: ignore[return-value]
-
-    def main(self, task_list: List[NormalizedTaskSettings]):
-        """
-        Load and execute the ones found in the task
-        list
-        """
-        tasks = self.discover_tasks()
-
-        for task in task_list:
-            # mypy typeddict bug
-            task_name = task.name  # type: ignore[attr-defined]
-            if task_name not in tasks:
-                logger.warning(f"{task_name} not found")
-                continue
-
-            try:
-                process_instance = self.load_task(tasks[task_name])
-            except Exception as e:
-                logger.error(f"Failed to load {task_name}. Reason: {e}")
-
-            try:
-                # mypy typeddict bug
-                process_instance.main(**task.kwargs)  # type: ignore[attr-defined]
-            except Exception as e:
-                logger.error(f"Failed to execute {task_name}. Reason: {e}")
+class PreProcessManager(BaseTaskManager):
+    def discover_tasks(self):
+        return self._discover_tasks(PreProcess)
 
 
-class PreProcessManager(BaseProcessManager):
-    pass
-
-
-class PostProcessManager(BaseProcessManager):
-    pass
+class PostProcessManager(BaseTaskManager):
+    def discover_tasks(self):
+        return self._discover_tasks(PostProcess)
 
 
 class SourceManager(BaseTaskManager):
-    def main(self, task_list: List[NormalizedTaskSettings]):
-        """
-        Discover all sources, load them, identify and fetch series metadata, and
-        finally identify and fetch episode metadata
-        """
-        raise NotImplementedError
+    def discover_tasks(self):
+        return self._discover_tasks(Source)
