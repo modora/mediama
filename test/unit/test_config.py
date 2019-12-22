@@ -9,7 +9,8 @@ import mediama.utils as utils
 class TestSourceNormalizer(unittest.TestCase):
     def test_empty_source_list(self):
         sources = []
-        self.assertListEqual([], config.normalize_sources(sources))
+        config.normalize_sources(sources)
+        self.assertListEqual([], sources)
 
     def test_list_of_strings(self):
         sources = ["s0", "s1", "s2"]
@@ -18,7 +19,8 @@ class TestSourceNormalizer(unittest.TestCase):
             {"name": "s1", "id": "src_1", "kwargs": {}},
             {"name": "s2", "id": "src_2", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_sources(sources))
+        config.normalize_sources(sources)
+        self.assertListEqual(expected, sources)
 
     def test_list_of_dicts(self):
         sources = [
@@ -29,7 +31,8 @@ class TestSourceNormalizer(unittest.TestCase):
             {"name": "s0", "id": "src_0", "kwargs": {}},
             {"name": "s1", "id": "src_1", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_sources(sources))
+        config.normalize_sources(sources)
+        self.assertListEqual(expected, sources)
 
     def test_mixed_source_types(self):
         sources = [
@@ -40,7 +43,8 @@ class TestSourceNormalizer(unittest.TestCase):
             {"name": "s0", "id": "src_0", "kwargs": {}},
             {"name": "s1", "id": "src_1", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_sources(sources))
+        config.normalize_sources(sources)
+        self.assertListEqual(expected, sources)
 
     def test_unknown_keys_in_source(self):
         sources = [
@@ -51,7 +55,8 @@ class TestSourceNormalizer(unittest.TestCase):
             {"name": "s0", "id": "src_0", "kwargs": {}},
             {"name": "s1", "id": "src_1", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_sources(sources))
+        config.normalize_sources(sources)
+        self.assertListEqual(expected, sources)
 
     def test_only_name_in_source(self):
         sources = [
@@ -62,7 +67,8 @@ class TestSourceNormalizer(unittest.TestCase):
             {"name": "s0", "id": "src_0", "kwargs": {}},
             {"name": "s1", "id": "src_1", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_sources(sources))
+        config.normalize_sources(sources)
+        self.assertListEqual(expected, sources)
 
     def test_given_keys_in_source(self):
         sources = [
@@ -73,7 +79,8 @@ class TestSourceNormalizer(unittest.TestCase):
             {"name": "s0", "id": "custom_id", "kwargs": {}},
             {"name": "s1", "id": "src_1", "kwargs": {"foo": "bar"}},
         ]
-        self.assertListEqual(expected, config.normalize_sources(sources))
+        config.normalize_sources(sources)
+        self.assertListEqual(expected, sources)
 
     def test_name_missing(self):
         sources = [{"id": "src_0"}]
@@ -84,7 +91,8 @@ class TestSourceNormalizer(unittest.TestCase):
 class TestPreNormalizer(unittest.TestCase):
     def test_empty_pre_list(self):
         pres = []
-        self.assertListEqual([], config.normalize_pres(pres))
+        config.normalize_pres(pres)
+        self.assertListEqual([], pres)
 
     def test_list_of_strings(self):
         pres = ["p0", "p1", "p2"]
@@ -93,7 +101,8 @@ class TestPreNormalizer(unittest.TestCase):
             {"name": "p1", "id": "pre_1", "kwargs": {}},
             {"name": "p2", "id": "pre_2", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_pres(pres))
+        config.normalize_pres(pres)
+        self.assertListEqual(expected, pres)
 
     def test_list_of_dicts(self):
         pres = [
@@ -104,7 +113,8 @@ class TestPreNormalizer(unittest.TestCase):
             {"name": "p0", "id": "pre_0", "kwargs": {}},
             {"name": "p1", "id": "pre_1", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_pres(pres))
+        config.normalize_pres(pres)
+        self.assertListEqual(expected, pres)
 
     def test_mixed_pre_types(self):
         pres = [
@@ -115,7 +125,8 @@ class TestPreNormalizer(unittest.TestCase):
             {"name": "p0", "id": "pre_0", "kwargs": {}},
             {"name": "p1", "id": "pre_1", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_pres(pres))
+        config.normalize_pres(pres)
+        self.assertListEqual(expected, pres)
 
     def test_unknown_keys_in_pre(self):
         pres = [
@@ -126,7 +137,8 @@ class TestPreNormalizer(unittest.TestCase):
             {"name": "p0", "id": "pre_0", "kwargs": {}},
             {"name": "p1", "id": "pre_1", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_pres(pres))
+        config.normalize_pres(pres)
+        self.assertListEqual(expected, pres)
 
     def test_only_name_in_pre(self):
         pres = [
@@ -137,7 +149,8 @@ class TestPreNormalizer(unittest.TestCase):
             {"name": "p0", "id": "pre_0", "kwargs": {}},
             {"name": "p1", "id": "pre_1", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_pres(pres))
+        config.normalize_pres(pres)
+        self.assertListEqual(expected, pres)
 
     def test_given_keys_in_pre(self):
         pres = [
@@ -148,7 +161,8 @@ class TestPreNormalizer(unittest.TestCase):
             {"name": "p0", "id": "custom_id", "kwargs": {}},
             {"name": "p1", "id": "pre_1", "kwargs": {"foo": "bar"}},
         ]
-        self.assertListEqual(expected, config.normalize_pres(pres))
+        config.normalize_pres(pres)
+        self.assertListEqual(expected, pres)
 
     def test_name_missing(self):
         pres = [{"id": "pre_0"}]
@@ -159,7 +173,8 @@ class TestPreNormalizer(unittest.TestCase):
 class TestPostNormalizer(unittest.TestCase):
     def test_empty_post_list(self):
         posts = []
-        self.assertListEqual([], config.normalize_posts(posts))
+        config.normalize_posts(posts)
+        self.assertListEqual([], posts)
 
     def test_list_of_strings(self):
         posts = ["p0", "p1", "p2"]
@@ -168,7 +183,8 @@ class TestPostNormalizer(unittest.TestCase):
             {"name": "p1", "id": "post_1", "kwargs": {}},
             {"name": "p2", "id": "post_2", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_posts(posts))
+        config.normalize_posts(posts)
+        self.assertListEqual(expected, posts)
 
     def test_list_of_dicts(self):
         posts = [
@@ -179,7 +195,8 @@ class TestPostNormalizer(unittest.TestCase):
             {"name": "p0", "id": "post_0", "kwargs": {}},
             {"name": "p1", "id": "post_1", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_posts(posts))
+        config.normalize_posts(posts)
+        self.assertListEqual(expected, posts)
 
     def test_mixed_post_types(self):
         posts = [
@@ -190,7 +207,8 @@ class TestPostNormalizer(unittest.TestCase):
             {"name": "p0", "id": "post_0", "kwargs": {}},
             {"name": "p1", "id": "post_1", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_posts(posts))
+        config.normalize_posts(posts)
+        self.assertListEqual(expected, posts)
 
     def test_unknown_keys_in_post(self):
         posts = [
@@ -207,7 +225,8 @@ class TestPostNormalizer(unittest.TestCase):
             {"name": "p0", "id": "post_0", "kwargs": {}},
             {"name": "p1", "id": "post_1", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_posts(posts))
+        config.normalize_posts(posts)
+        self.assertListEqual(expected, posts)
 
     def test_only_name_in_post(self):
         posts = [
@@ -218,7 +237,8 @@ class TestPostNormalizer(unittest.TestCase):
             {"name": "p0", "id": "post_0", "kwargs": {}},
             {"name": "p1", "id": "post_1", "kwargs": {}},
         ]
-        self.assertListEqual(expected, config.normalize_posts(posts))
+        config.normalize_posts(posts)
+        self.assertListEqual(expected, posts)
 
     def test_given_keys_in_post(self):
         posts = [
@@ -229,7 +249,8 @@ class TestPostNormalizer(unittest.TestCase):
             {"name": "p0", "id": "custom_id", "kwargs": {}},
             {"name": "p1", "id": "post_1", "kwargs": {"foo": "bar"}},
         ]
-        self.assertListEqual(expected, config.normalize_posts(posts))
+        config.normalize_posts(posts)
+        self.assertListEqual(expected, posts)
 
     def test_name_missing(self):
         posts = [{"id": "post_0"}]
@@ -241,12 +262,14 @@ class TestDuplicateIdFilter(unittest.TestCase):
     def test_duplicates(self):
         tasks = [{"id": "t0"}, {"id": "t1"}, {"id": "t0"}, {"id": "t4"}]
         expected = [{"id": "t0"}, {"id": "t1"}, {"id": "t4"}]
-        self.assertListEqual(expected, config.filter_duplicate_ids(tasks))
+        config.filter_duplicate_ids(tasks)
+        self.assertListEqual(expected, tasks)
 
     def test_no_duplicates(self):
         tasks = [{"id": "t0"}, {"id": "t1"}, {"id": "t4"}]
         expected = [{"id": "t0"}, {"id": "t1"}, {"id": "t4"}]
-        self.assertListEqual(expected, config.filter_duplicate_ids(tasks))
+        config.filter_duplicate_ids(tasks)
+        self.assertListEqual(expected, tasks)
 
 
 class TestConfigDiscovery(TestCase):
@@ -254,10 +277,10 @@ class TestConfigDiscovery(TestCase):
         self.setUpPyfakefs()
 
     def test_user_specified_config(self):
-        pass
+        self.fail()
 
     def test_system_specified_config(self):
-        pass
+        self.fail()
 
     def test_no_config(self):
         expected = utils.get_project_root().joinpath(
@@ -266,12 +289,12 @@ class TestConfigDiscovery(TestCase):
         self.assertEqual(expected, config.discover_config())
 
     def test_python_config(self):
-        pass
+        self.fail()
 
 class TestConfigLoader(TestCase):
     def test_json(self):
-        pass
+        self.fail()
     def test_json_with_comments(self):
-        pass
+        self.fail()
     def test_python(self):
-        pass
+        self.fail()
