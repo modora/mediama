@@ -30,7 +30,9 @@ def discover_modules(search_dir: Path) -> Generator[Path, None, None]:
         or (f.is_dir() and "__init__.py" in f.iterdir())
     )
 
-
+"""
+Untested, too hard to write test without hackery
+"""
 def import_module_from_path(module: Path) -> ModuleType:
     # attempt to import the file/package and raise error if fails
     sys.path.insert(0, str(module.parent))
@@ -41,7 +43,9 @@ def import_module_from_path(module: Path) -> ModuleType:
     finally:
         sys.path.pop(0)  # lets not pollute sys.path!!
 
-
+"""
+Untested, too hard to write test without hackery
+"""
 def unload_module(module: Union[str, ModuleType]):
     """
     unload the imported module
