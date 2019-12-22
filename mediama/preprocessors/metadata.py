@@ -1,6 +1,5 @@
 from mediama import PreProcess
 
-
 class Metadata(PreProcess):
     """
     Allows the user to set metadata
