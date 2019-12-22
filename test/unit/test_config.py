@@ -1,5 +1,4 @@
 import unittest
-from pyfakefs.fake_filesystem_unittest import TestCase
 from pathlib import Path
 
 import mediama.config as config
@@ -272,10 +271,7 @@ class TestDuplicateIdFilter(unittest.TestCase):
         self.assertListEqual(expected, tasks)
 
 
-class TestConfigDiscovery(TestCase):
-    def setUp(self):
-        self.setUpPyfakefs()
-
+class TestConfigDiscovery(unittest.TestCase):
     def test_user_specified_config(self):
         self.fail()
 
@@ -291,7 +287,7 @@ class TestConfigDiscovery(TestCase):
     def test_python_config(self):
         self.fail()
 
-class TestConfigLoader(TestCase):
+class TestConfigLoader(unittest.TestCase):
     def test_json(self):
         self.fail()
     def test_json_with_comments(self):
