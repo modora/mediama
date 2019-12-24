@@ -170,5 +170,7 @@ class SourceManager(BaseTaskManager):
     def disambiguate_series(self, ranking: List[SourceMetadata]) -> SourceMetadata:
         raise NotImplementedError
 
-    def disambiguate_episodes(self, ranking: List[SourceMetadata]) -> SourceMetadata:
+    def disambiguate_episodes(
+        self, episode_metadata: List[SourceMetadata]
+    ) -> Dict[Path, SourceMetadata]:
         raise NotImplementedError

@@ -59,7 +59,7 @@ def execute_disambiguator(mgr, ranking, name, cfg):
         if not cfg["prompt"]:
             raise e
         idx = int(input())
-    return ranking[idx].name
+    return ranking[idx]
 
 
 def main(filepaths: list, cfg: NormalizedConfig):
@@ -132,10 +132,13 @@ def main(filepaths: list, cfg: NormalizedConfig):
     # Disambiguate
     logger.debug("Disambiguating series")
     try:
-        name = execute_disambiguator(src_mgr, ranking, "disambiguate_series", cfg)
+        name = execute_disambiguator(src_mgr, ranking, "disambiguate_series", cfg)[
+            "name"
+        ]
     except Exception as e:
         # Logging occurs in the executor
         raise e
+    # Add series metadata to the variable pool
     for id_, ranking in rankings:
         data = tuple(filter(lambda result: result["name"] == name, ranking))[0]
         varpool.set_(data, id_)
@@ -149,7 +152,7 @@ def main(filepaths: list, cfg: NormalizedConfig):
     gevent.joinall(tasks, cfg["timeout"])
     # Aggregate episode metadata
     logger.debug("Aggregating episode metadata")
-    ranking = src_mgr.aggregate(
+    episodes = src_mgr.aggregate(
         [
             task.value if isinstance(tasks.value, list) else [task.value]
             for task in tasks
@@ -159,7 +162,7 @@ def main(filepaths: list, cfg: NormalizedConfig):
     # Disambiguate
     logger.debug("Disambiguating episodes")
     try:
-        data = execute_disambiguator(src_mgr, ranking, "disambiguate_episodes", cfg)
+        data = execute_disambiguator(src_mgr, episodes, "disambiguate_episodes", cfg)
     except Exception as e:
         # Logging occurs in the executor
         raise e
