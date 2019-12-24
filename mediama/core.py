@@ -59,10 +59,11 @@ def execute_disambiguator(mgr, ranking, name, cfg):
     return ranking[idx]
 
 def main(filepaths: list, cfg: NormalizedConfig):
-    # Import the config
     # Note that the logger is not yet loaded since it depends on the cfg
-    cfg_path = discover_config()
-    cfg = load_config(cfg_path)
+    # Import the config if not given
+    if not cfg:
+        cfg_path = discover_config()
+        cfg = load_config(cfg_path)
 
     # Configure the logger
     configure_logger(cfg)
