@@ -1,8 +1,11 @@
 import logging.config
 from logging import getLogger
+from pathlib import Path
 
 import gevent
+import requests_cache
 
+from .utils import dirs
 from .config import NormalizedConfig, discover_config, load_config
 from .metadata import VariablePool
 from .managers import PreProcessManager, SourceManager, PostProcessManager
@@ -13,6 +16,19 @@ logger = getLogger(__name__)
 
 def configure_logger(cfg: NormalizedConfig):
     logging.config.dictConfig(cfg["log"])
+
+
+def configure_requests_cache(cfg: NormalizedConfig):
+    # Check if caching is enabled
+    config = cfg['cache']
+    if not cfg['cache']:
+        return
+    
+    path = Path(config['path'])
+    if not path.is_absolute():
+        path = Path(dirs.user_data_dir) / (path or 'cache')
+        
+    requests_cache.install_cache(path)
 
 
 def execute_process(mgr, task, name: str = "main"):
@@ -54,6 +70,9 @@ def main(filepaths: list, cfg: NormalizedConfig):
     logger.debug(f"Config path loaded: {cfg_path}")
     logger.debug(f"Config settings: {cfg}")
     logger.debug(f"File args: {[str(file) for file in filepaths]}")
+
+    # Setup requests cache
+    configure_requests_cache(cfg)
 
     # Setup the varpool
     logger.debug("Setting up variable pool")
