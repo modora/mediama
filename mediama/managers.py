@@ -1,4 +1,4 @@
-from typing import Set, List, Dict, Any, Type, TypedDict, Optional
+from typing import Set, List, Dict, Any, Type, TypedDict, Optional, Tuple, Iterable
 import copy
 from logging import getLogger
 from pathlib import Path
@@ -9,20 +9,22 @@ from .utils import (
     get_subclasses_from_module,
     discover_modules,
     dirs,
+    rank_aggregation,
+    merge_ranking_metadata,
+    normalize_ranking,
 )
-from .metadata import VariablePool, SourceMetadata
+from .metadata import VariablePool, SourceMetadata, Metadata
 from .config import NormalizedTaskSettings, NormalizedConfig
 
 logger = getLogger(__name__)
 
 
 class Task:
-    def __init__(self, metadata: VariablePool):
-        self.metadata = metadata.set_id(self.__class__.__name__)
+    pass
 
 
 class Process(Task):
-    def main(self, **kwargs: Any):
+    def main(self, **kwargs: Any) -> Metadata:
         raise NotImplementedError
 
 
@@ -46,23 +48,13 @@ class BaseTaskManager:
     _tasks: Optional[Dict[str, Type[Task]]] = None
 
     def __init__(
-        self, cfg: NormalizedConfig, metadata: Optional[VariablePool] = None,
+        self, cfg: NormalizedConfig, metadata: VariablePool,
     ):
-        self._metadata = metadata
+        self.metadata = metadata
 
         # plugin search directory from lowest priority to highest
         # if no search dirlist is provided use the default
         self.search_dirs = cfg["search_dirs"] or [Path(d) / "plugins" for d in (dirs.site_data_dir, dirs.user_data_dir)]  # type: ignore[has-type]
-
-    @property
-    def metadata(self):
-        if self._metadata is None:
-            raise RuntimeError("VariablePool not defined")
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, value):
-        self._metadata = value
 
     def discover_tasks(self):
         """
@@ -113,28 +105,68 @@ class BaseTaskManager:
         return self._tasks
 
     def load_task(self, task: Type[Task]) -> Task:
-        metadata = copy.deepcopy(self.metadata)
-        metadata.set_id(task.name)
-        return task(metadata)
+        return task(self.metadata)
+
+    def execute_task(
+        self,
+        task: Task,
+        id_: Optional[str] = None,
+        name: Optional[str] = "main",
+        **kwargs: Any,
+    ) -> Metadata:
+        func = getattr(task, name)
+        data = func(**kwargs)
+        if id_:
+            self.metadata.set(data, id_=id_)
+        return data
 
 
 class PreProcessManager(BaseTaskManager):
-    def discover_tasks(self):
+    def discover_tasks(self) -> Dict[str, PreProcess]:
         return self._discover_tasks(PreProcess)
 
 
 class PostProcessManager(BaseTaskManager):
-    def discover_tasks(self):
+    def discover_tasks(self) -> Dict[str, PostProcess]:
         return self._discover_tasks(PostProcess)
 
 
 class SourceManager(BaseTaskManager):
-    def discover_tasks(self):
+    def __init__(self, cfg: NormalizedConfig, metadata: Metadata):
+        super().__init__(cfg, metadata)
+        self.num_ranks = cfg["ranks"]
+
+    def discover_tasks(self) -> Dict[str, Source]:
         return self._discover_tasks(Source)
 
-    def aggregate(self, *rankings: List[SourceMetadata]) -> List[SourceMetadata]:        
-        raise NotImplementedError
-    
+    def execute_task(
+        self, task: Task, name: str, id_: Optional[str] = None, **kwargs: Any,
+    ) -> List[Metadata]:
+        if name == "fetch_series":
+            return normalize_ranking(
+                super().execute_task(
+                    task, id_, name, **{"num_ranks": self.num_ranks, **kwargs}
+                ),
+                self.num_ranks,
+            )
+        elif name == "fetch_episodes":
+            return super().execute_task(task, id_, name, **kwargs)
+        else:
+            raise AttributeError
+
+    def aggregate(
+        self, *rankings: Iterable[Tuple(str, float, SourceMetadata)]
+    ) -> List[SourceMetadata]:
+        name_rankings = [
+            [result.name for result in ranking] for _, ranking, _ in rankings
+        ]
+        weights = [weight for _, _, weight in rankings]
+        names = rank_aggregation(name_rankings, weights)
+
+        return merge_ranking_metadata(
+            names, [(id_, ranking) for id_, ranking, _ in rankings]
+        )
+
     def disambiguate_series(self, ranking: List[SourceMetadata]) -> SourceMetadata:
         raise NotImplementedError
 

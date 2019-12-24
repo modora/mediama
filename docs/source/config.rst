@@ -110,7 +110,7 @@ The metadata storage prioritizes keys in the following manner
 
 1. posts (last-to-first)
 2. sources (first-to-last)
-3. pres (first-to-last)
+3. pres (last-to-first)
 
 In some instances, you may want specific tasks to take higher precedence. This
 setting allows you to remap the precedence of specific keys using process ids.
