@@ -1,7 +1,10 @@
 import sqlite3
-from typing import List, Tuple, Any, Dict
+from typing import List, Tuple, Any, Dict, TypedDict
 
 Metadata = Dict[str, Any]
+class SourceMetadata(Metadata):
+    name: str
+
 class VariablePool:
     def __init__(self, cfg: dict, id_: str = None):
         self.cfg = cfg
