@@ -35,10 +35,10 @@ class PostProcess(Process):
 
 
 class Source(Task):
-    def fetch_series(self, **kwargs: Any) -> Rankings:
+    def fetch_series(self, **kwargs: Any) -> List[SourceMetadata]:
         raise NotImplementedError
 
-    def fetch_episodes(self, **kwargs: Any) -> Rankings:
+    def fetch_episodes(self, **kwargs: Any) -> List[SourceMetadata]:
         raise NotImplementedError
 
 
