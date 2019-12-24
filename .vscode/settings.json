@@ -11,5 +11,6 @@
     "python.testing.nosetestsEnabled": false,
     "python.testing.unittestEnabled": true,
     "restructuredtext.builtDocumentationPath": "${workspaceFolder}/docs/build/html",
-    "restructuredtext.confPath": "${workspaceFolder}/docs/source"
+    "restructuredtext.confPath": "${workspaceFolder}/docs/source",
+    "editor.formatOnSave": true
 }
