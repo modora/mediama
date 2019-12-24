@@ -82,10 +82,9 @@ def main(filepaths: list, cfg: NormalizedConfig):
     # Initialize the managers
     logger.debug("Setting up managers")
     try:
-        search_dirs = cfg.get("search_dirs", None)
-        pre_mgr = PreProcessManager(metadata=varpool, search_dirs=search_dirs)
-        src_mgr = SourceManager(metadata=varpool, search_dirs=search_dirs)
-        post_mgr = PreProcessManager(metadata=varpool, search_dirs=search_dirs)
+        pre_mgr = PreProcessManager(cfg, metadata=varpool)
+        src_mgr = SourceManager(cfg, metadata=varpool)
+        post_mgr = PreProcessManager(cfg, metadata=varpool)
     except Exception as e:
         logger.critical(f"Failed to setup managers: {e}")
         raise e
@@ -121,7 +120,7 @@ def main(filepaths: list, cfg: NormalizedConfig):
     # Aggregate series metadata
     logger.debug("Aggregating series metadata")
     ranking = src_mgr.aggregate(
-        [task.value for task in tasks if isinstance(tasks.value, list)]
+        *[task.value for task in tasks if isinstance(tasks.value, list)]
     )
     # Disambiguate
     logger.debug("Disambiguating series")
@@ -141,7 +140,7 @@ def main(filepaths: list, cfg: NormalizedConfig):
     # Aggregate episode metadata
     logger.debug("Aggregating episode metadata")
     ranking = src_mgr.aggregate(
-        [task.value for task in tasks if isinstance(tasks.value, list)]
+        *[task.value for task in tasks if isinstance(tasks.value, list)]
     )
     # Disambiguate
     logger.debug("Disambiguating episodes")

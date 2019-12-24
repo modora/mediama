@@ -10,8 +10,8 @@ from .utils import (
     discover_modules,
     dirs,
 )
-from .metadata import VariablePool
-from .config import NormalizedTaskSettings
+from .metadata import VariablePool, Metadata
+from .config import NormalizedTaskSettings, NormalizedConfig
 
 Rankings = List[Dict[str, Any]]
 
@@ -48,21 +48,13 @@ class BaseTaskManager:
     _tasks: Optional[Dict[str, Type[Task]]] = None
 
     def __init__(
-        self,
-        metadata: Optional[VariablePool] = None,
-        search_dirs: Optional[List[Path]] = None,
+        self, cfg: NormalizedConfig, metadata: Optional[VariablePool] = None,
     ):
         self._metadata = metadata
 
         # plugin search directory from lowest priority to highest
         # if no search dirlist is provided use the default
-        self.search_dirs = (
-            search_dirs
-            if search_dirs
-            else [
-                Path(d) / "plugins" for d in (dirs.site_data_dir, dirs.user_data_dir)  # type: ignore[has-type]
-            ]
-        )
+        self.search_dirs = cfg["search_dirs"] or [Path(d) / "plugins" for d in (dirs.site_data_dir, dirs.user_data_dir)]  # type: ignore[has-type]
 
     @property
     def metadata(self):
@@ -127,6 +119,7 @@ class BaseTaskManager:
         metadata.set_id(task.name)
         return task(metadata)
 
+
 class PreProcessManager(BaseTaskManager):
     def discover_tasks(self):
         return self._discover_tasks(PreProcess)
@@ -140,3 +133,6 @@ class PostProcessManager(BaseTaskManager):
 class SourceManager(BaseTaskManager):
     def discover_tasks(self):
         return self._discover_tasks(Source)
+
+    def aggregate(self, *results: List[Metadata]) -> List[Metadata]:
+        raise NotImplementedError

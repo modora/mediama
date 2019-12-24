@@ -1,6 +1,7 @@
 import sqlite3
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Dict
 
+Metadata = Dict[str, Any]
 class VariablePool:
     def __init__(self, cfg: dict, id_: str = None):
         self.cfg = cfg
