@@ -10,10 +10,8 @@ from .utils import (
     discover_modules,
     dirs,
 )
-from .metadata import VariablePool, Metadata
+from .metadata import VariablePool, SourceMetadata
 from .config import NormalizedTaskSettings, NormalizedConfig
-
-Rankings = List[Dict[str, Any]]
 
 logger = getLogger(__name__)
 
@@ -134,5 +132,11 @@ class SourceManager(BaseTaskManager):
     def discover_tasks(self):
         return self._discover_tasks(Source)
 
-    def aggregate(self, *results: List[Metadata]) -> List[Metadata]:
+    def aggregate(self, *rankings: List[SourceMetadata]) -> List[SourceMetadata]:        
+        raise NotImplementedError
+    
+    def disambiguate_series(self, ranking: List[SourceMetadata]) -> SourceMetadata:
+        raise NotImplementedError
+
+    def disambiguate_episodes(self, ranking: List[SourceMetadata]) -> SourceMetadata:
         raise NotImplementedError
