@@ -155,7 +155,8 @@ class SourceManager(BaseTaskManager):
             raise AttributeError
 
     def aggregate(
-        self, *rankings: Iterable[Tuple(str, float, SourceMetadata)]
+        # self, *rankings: List[Tuple(str, float, SourceMetadata)]
+        self, *rankings
     ) -> List[SourceMetadata]:
         name_rankings = [
             [result.name for result in ranking] for _, ranking, _ in rankings

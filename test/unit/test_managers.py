@@ -1,6 +1,5 @@
 import unittest
 import unittest.mock as mock
-from pyfakefs.fake_filesystem_unittest import TestCase
 from pathlib import Path
 import importlib
 from textwrap import dedent
@@ -19,7 +18,9 @@ class TestBaseTaskManager_discover_tasks(unittest.TestCase):
         import_module_from_path_mock,
         discover_modules_mock,
     ):
-        mgr = managers.BaseTaskManager(search_dirs=[])
+        cfg = {"search_dirs": []}
+        varpool = mock.Mock(cfg)
+        mgr = managers.BaseTaskManager(cfg, varpool)
 
         discover_modules_mock.return_value = iter(())
         tasks = mgr._discover_tasks(managers.Task)
@@ -37,8 +38,10 @@ class TestBaseTaskManager_discover_tasks(unittest.TestCase):
         discover_modules_mock,
     ):
         d = Path("/tasks")
-        mgr = managers.BaseTaskManager(search_dirs=[d])
-        
+        cfg = {"search_dirs": [d]}
+        varpool = mock.Mock(cfg)
+        mgr = managers.BaseTaskManager(cfg, varpool)
+
         discover_modules_mock.return_value = iter(())
 
         tasks = mgr._discover_tasks(managers.Task)
@@ -58,7 +61,9 @@ class TestBaseTaskManager_discover_tasks(unittest.TestCase):
         discover_modules_mock,
     ):
         d = Path("/tasks")
-        mgr = managers.BaseTaskManager(search_dirs=[d])
+        cfg = {"search_dirs": [d]}
+        varpool = mock.Mock(cfg)
+        mgr = managers.BaseTaskManager(cfg, varpool)
 
         discover_modules_mock.return_value = iter(())
 
@@ -80,7 +85,9 @@ class TestBaseTaskManager_discover_tasks(unittest.TestCase):
     ):
         d = Path("/tasks")
         f = d / "test_mod.py"
-        mgr = managers.BaseTaskManager(search_dirs=[d])
+        cfg = {"search_dirs": [d]}
+        varpool = mock.Mock(cfg)
+        mgr = managers.BaseTaskManager(cfg, varpool)
 
         discover_modules_mock.return_value = iter((f,))
         get_subclasses_from_module_mock.return_value = iter(())
@@ -103,15 +110,20 @@ class TestBaseTaskManager_discover_tasks(unittest.TestCase):
     ):
         d = Path("/tasks")
         f = d / "mod.py"
-        mgr = managers.BaseTaskManager(search_dirs=[d])
+        cfg = {"search_dirs": [d]}
+        varpool = mock.Mock(cfg)
+        mgr = managers.BaseTaskManager(cfg, varpool)
 
         def get_subclasses_from_module_mock_return_value():
             class SomeTask(managers.Task):
                 pass
+
             yield SomeTask
 
         discover_modules_mock.return_value = iter((f,))
-        get_subclasses_from_module_mock.return_value = get_subclasses_from_module_mock_return_value()
+        get_subclasses_from_module_mock.return_value = (
+            get_subclasses_from_module_mock_return_value()
+        )
 
         tasks = mgr._discover_tasks(managers.Task)
         expected = set(("SomeTask",))
