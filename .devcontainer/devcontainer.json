@@ -15,13 +15,13 @@
 	},
 	// Uncomment the next line if you want to publish any ports.
 	// "appPort": [],
-	"postCreateCommand": "sudo pip --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements-dev.txt",
-
-	// Uncomment the next line to have VS Code connect as an existing non-root user in the container. 
-	// On Linux, by default, the container user's UID/GID will be updated to match your local user. See
-	// https://aka.ms/vscode-remote/containers/non-root for details on adding a non-root user if none exist.
-	"remoteUser": "vscode",
-
+	"postCreateCommand": "sudo pip --disable-pip-version-check install -r /tmp/pip-tmp/requirements-dev.txt",
+	"remoteUser": "mediama",
+	"mounts": [
+		"source=vscode_extensions,target=/home/mediama/.vscode-server/extensions,type=volume",
+		"source=pip_cache,target=/root/.cache/pip,type=volume",
+		"source=${localWorkspaceFolder}/data,target=/data,type=bind,consistency=cached,readonly"
+	],
 	// "runArgs": [
 	// 	"-v",
 	// 	"${env:HOME}${env:USERPROFILE}/.ssh:/root/.ssh-localhost:ro"
